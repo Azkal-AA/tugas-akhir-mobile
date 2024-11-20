@@ -1,6 +1,6 @@
 # tugas_akhir
 
-A new Flutter project.
+124220085_Azkal Azkiya Akbar_Si-C
 
 ## Getting Started
 
