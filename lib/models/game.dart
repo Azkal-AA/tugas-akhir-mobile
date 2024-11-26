@@ -6,6 +6,7 @@ class Game {
   final double originalPrice;
   final double discount;
   final String thumb;
+  double? detailedPrice;
 
   Game({
     required this.id,
@@ -15,16 +16,10 @@ class Game {
     required this.originalPrice,
     required this.discount,
     required this.thumb,
+    // this.detailedPrice, // Opsional
   });
 
   factory Game.fromJson(Map<String, dynamic> json) {
-    print("GameID: ${json['gameID']}");
-    print("Title: ${json['title']}");
-    print("Sale Price: ${json['salePrice']}");
-    print("Normal Price: ${json['normalPrice']}");
-    print("Savings: ${json['savings']}");
-    print("Thumbnail: ${json['thumb']}");
-
     return Game(
       id: json['gameID'] ?? 'N/A',
       title: json['title'] ?? 'Unknown Title',
@@ -33,7 +28,22 @@ class Game {
       originalPrice:
           double.tryParse(json['normalPrice']?.toString() ?? '0') ?? 0,
       discount: double.tryParse(json['savings']?.toString() ?? '0') ?? 0,
-      thumb: json['thumb'] ?? '', // Mengambil URL gambar langsung dari JSON
+      thumb: json['thumb'] ?? '',
     );
   }
+
+  // Factory method untuk parsing API search
+  factory Game.fromJsonSearch(Map<String, dynamic> json) {
+    return Game(
+      id: json['gameID'] ?? 'N/A',
+      title: json['external'] ?? 'Unknown Title',
+      price: 0, // Harga tidak ada di hasil pencarian API `games`
+      store: 'Unknown Store',
+      originalPrice: 0,
+      discount: 0,
+      thumb: json['thumb'] ?? '',
+    );
+  }
+
+  get gameID => id;
 }
