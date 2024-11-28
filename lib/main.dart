@@ -7,6 +7,7 @@ import 'package:tugas_akhir/pages/registerPage.dart';
 import 'package:tugas_akhir/providers/game_provider.dart';
 import 'package:tugas_akhir/providers/currencyProvider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // Import the plugin
+import 'package:timezone/data/latest.dart' as tz;
 
 // Create a global instance of FlutterLocalNotificationsPlugin
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -15,6 +16,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 void main() {
   // Inisialisasi notifikasi sebelum menjalankan aplikasi
   WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones();
   initializeNotifications(); // Memanggil fungsi inisialisasi
 
   runApp(
@@ -32,7 +34,8 @@ void main() {
 // Fungsi untuk menginisialisasi notifikasi
 void initializeNotifications() {
   const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('app_icon'); // Ganti dengan nama ikon Anda
+      AndroidInitializationSettings(
+          '@mipmap/gd'); // Ganti dengan nama ikon Anda
 
   const InitializationSettings initializationSettings =
       InitializationSettings(android: initializationSettingsAndroid);

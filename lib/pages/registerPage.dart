@@ -23,6 +23,12 @@ class _RegisterPageState extends State<RegisterPage> {
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
 
+    if (username.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Username dan password tidak boleh kosong')));
+      return;
+    }
+
     final prefs = await SharedPreferences.getInstance();
     final hashedPassword = hashPassword(password);
 
@@ -31,40 +37,90 @@ class _RegisterPageState extends State<RegisterPage> {
 
     // Show success message
     ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Registration successful')));
+        .showSnackBar(SnackBar(content: Text('Registrasi berhasil')));
 
     // Navigate to LoginPage
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-          builder: (context) =>
-              LoginPage()), // Arahkan ke halaman login setelah registrasi
+      MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Register")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(
+          "Register",
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 227, 142, 73),
+        automaticallyImplyLeading: false, // Hapus tombol kembali
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Tambahkan logo di atas kolom pengisian (opsional)
+                Image.asset(
+                  'assets/logo.png', // Pastikan file logo ada di folder assets
+                  height: 200,
+                  width: 200,
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: _usernameController,
+                  decoration: InputDecoration(
+                    labelText: 'Username',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 10),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _register,
+                  child: Text(
+                    'Register',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 227, 142, 73),
+                    minimumSize: Size(double.infinity, 50),
+                  ),
+                ),
+                SizedBox(height: 20),
+                // Teks untuk mengarahkan ke halaman login
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                  },
+                  child: Text(
+                    'Already have an account? Login',
+                    style: TextStyle(
+                      color: const Color.fromARGB(255, 31, 80, 154),
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: 'Password'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _register,
-              child: Text('Register'),
-            ),
-          ],
+          ),
         ),
       ),
     );

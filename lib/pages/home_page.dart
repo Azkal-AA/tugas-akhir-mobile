@@ -71,96 +71,109 @@ class _HomePageState extends State<HomePage> {
 
     final List<Widget> pages = [
       Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.blue,
-          title: TextField(
-            decoration: InputDecoration(
-              hintText: "Search games...",
-              border: InputBorder.none,
-              hintStyle: TextStyle(color: Colors.white54),
-            ),
-            style: TextStyle(color: Colors.white),
-            onSubmitted: (value) async {
-              if (value.isNotEmpty) {
-                List<Game> searchResults =
-                    await gameProvider.searchGamesWithDetails(value);
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        SearchResultPage(searchResults: searchResults),
-                  ),
-                );
-              }
-            },
-          ),
-          actions: [
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProfilePage()),
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  children: [
-                    // Display the username
-                    Text(_username),
-                    SizedBox(width: 8.0),
-                    // Display the profile image or a placeholder
-                    CircleAvatar(
-                      backgroundImage: _profileImage != null
-                          ? FileImage(_profileImage!)
-                          : NetworkImage('https://via.placeholder.com/150')
-                              as ImageProvider,
-                    ),
-                  ],
-                ),
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            backgroundColor: const Color.fromARGB(255, 10, 57, 129),
+            title: TextField(
+              decoration: InputDecoration(
+                hintText: "Search games...",
+                border: InputBorder.none,
+                hintStyle: TextStyle(color: Colors.white),
               ),
+              style: TextStyle(color: Colors.white),
+              onSubmitted: (value) async {
+                if (value.isNotEmpty) {
+                  final gameProvider =
+                      Provider.of<GameProvider>(context, listen: false);
+                  List<Game> searchResults =
+                      await gameProvider.searchGamesWithDetails(value);
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          SearchResultPage(searchResults: searchResults),
+                    ),
+                  );
+                }
+              },
             ),
-          ],
-        ),
-        body: gameProvider.isLoading
-            ? Center(child: CircularProgressIndicator())
-            : gameProvider.games.isEmpty
-                ? Center(child: Text("No games found"))
-                : Column(
+            actions: [
+              GestureDetector(
+                onTap: () async {
+                  // Navigasikan ke halaman ProfilePage dan tunggu hasilnya
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ProfilePage()),
+                  );
+                  // Setelah kembali, muat ulang data pengguna (foto profil)
+                  _loadUserData();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: CurrencyDropdown(),
+                      // Tampilkan nama pengguna
+                      Text(
+                        _username,
+                        style: TextStyle(color: Colors.white),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          'Featured',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        height: 450,
-                        child: Swiper(
-                          itemCount: gameProvider.games.length,
-                          itemBuilder: (context, index) {
-                            final game = gameProvider.games[index];
-                            return GameCarouselItem(game: game);
-                          },
-                          autoplay: true,
-                          loop: true,
-                          itemWidth: double.infinity,
-                          layout: SwiperLayout.DEFAULT,
-                          control: SwiperControl(),
-                        ),
+                      SizedBox(width: 8.0),
+                      // Tampilkan gambar profil atau placeholder
+                      CircleAvatar(
+                        backgroundImage: _profileImage != null
+                            ? FileImage(_profileImage!)
+                            : NetworkImage('https://via.placeholder.com/150')
+                                as ImageProvider,
                       ),
                     ],
                   ),
-      ),
+                ),
+              ),
+            ],
+          ),
+          body: Consumer<GameProvider>(
+            builder: (context, gameProvider, child) {
+              return gameProvider.isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : gameProvider.games.isEmpty
+                      ? Center(child: Text("No games found"))
+                      : Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: CurrencyDropdown(),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Text(
+                                'Featured',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              height: 450,
+                              child: Swiper(
+                                itemCount: gameProvider.games.length,
+                                itemBuilder: (context, index) {
+                                  final game = gameProvider.games[index];
+                                  return GameCarouselItem(game: game);
+                                },
+                                autoplay: true,
+                                loop: true,
+                                itemWidth: double.infinity,
+                                layout: SwiperLayout.DEFAULT,
+                                control: SwiperControl(),
+                              ),
+                            ),
+                          ],
+                        );
+            },
+          )),
       WishlistPage(),
       // NotificationPage(),
     ];
@@ -183,7 +196,9 @@ class _HomePageState extends State<HomePage> {
           // ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.white,
+        backgroundColor: const Color.fromARGB(255, 10, 57, 129),
+        selectedItemColor: const Color.fromARGB(255, 227, 142, 73),
         onTap: _onItemTapped,
       ),
     );

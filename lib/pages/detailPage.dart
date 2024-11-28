@@ -84,7 +84,11 @@ class _DetailPageState extends State<DetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.game.title),
+        backgroundColor: const Color.fromARGB(255, 10, 57, 129),
+        title: Text(
+          widget.game.title,
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -175,12 +179,16 @@ class _DetailPageState extends State<DetailPage> {
                 onPressed: _toggleWishlist,
                 icon: Icon(
                   isWishlisted ? Icons.favorite : Icons.favorite_border,
+                  color: Colors.white,
                 ),
                 label: Text(
                   isWishlisted ? "Remove from Wishlist" : "Add to Wishlist",
+                  style: TextStyle(color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isWishlisted ? Colors.red : Colors.blue,
+                  backgroundColor: isWishlisted
+                      ? const Color.fromARGB(255, 227, 142, 73)
+                      : const Color.fromARGB(255, 31, 80, 154),
                 ),
               ),
             ),

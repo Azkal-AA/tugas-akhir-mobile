@@ -89,48 +89,77 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Login")),
-      body: _isLoggedIn
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("You are logged in!"),
-                  ElevatedButton(
-                    onPressed: _logout,
-                    child: Text("Logout"),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(
+          "Login",
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 10, 57, 129),
+        automaticallyImplyLeading: false,
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Tambahkan logo di atas kolom pengisian
+                Image.asset(
+                  'assets/logo.png', // Pastikan file logo ada di folder assets
+                  height: 200,
+                  width: 200,
+                ),
+                SizedBox(height: 20),
+
+                TextField(
+                  controller: _usernameController,
+                  decoration: InputDecoration(
+                    labelText: 'Username',
+                    border: OutlineInputBorder(),
                   ),
-                ],
-              ),
-            )
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  TextField(
-                    controller: _usernameController,
-                    decoration: InputDecoration(labelText: 'Username'),
+                ),
+                SizedBox(height: 10),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(),
                   ),
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(labelText: 'Password'),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _login,
+                  child: Text(
+                    'Login',
+                    style: TextStyle(color: Colors.white),
                   ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _login,
-                    child: Text('Login'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 31, 80, 154),
+                    minimumSize: Size(double.infinity, 50),
                   ),
-                  SizedBox(height: 20),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/register');
-                    },
-                    child: Text('Don\'t have an account? Register'),
-                  )
-                ],
-              ),
+                ),
+                SizedBox(height: 10),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/register');
+                  },
+                  child: Text(
+                    'Don\'t have an account? Register',
+                    style: TextStyle(
+                      color: const Color.fromARGB(255, 227, 142, 73),
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
             ),
+          ),
+        ),
+      ),
     );
   }
 }

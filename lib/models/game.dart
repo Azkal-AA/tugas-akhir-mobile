@@ -7,6 +7,7 @@ class Game {
   final double discount;
   final String thumb;
   double? detailedPrice;
+  DateTime? reminderTime;
 
   Game({
     required this.id,
@@ -17,6 +18,7 @@ class Game {
     required this.discount,
     required this.thumb,
     // this.detailedPrice, // Opsional
+    this.reminderTime
   });
 
   factory Game.fromJson(Map<String, dynamic> json) {

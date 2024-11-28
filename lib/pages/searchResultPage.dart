@@ -38,8 +38,11 @@ class _SearchResultPageState extends State<SearchResultPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Search Results"),
-        backgroundColor: Colors.blue,
+        title: Text(
+          "Search Results",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color.fromARGB(255, 10, 57, 129),
       ),
       body: widget.searchResults.isEmpty
           ? Center(
@@ -131,9 +134,13 @@ class _GameDetailPageState extends State<GameDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(widget.game.title),
-        backgroundColor: Colors.blue,
+        title: Text(
+          widget.game.title,
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color.fromARGB(255, 10, 57, 129),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

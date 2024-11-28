@@ -80,8 +80,13 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Profile"),
+        backgroundColor: const Color.fromARGB(255, 10, 57, 129),
+        title: Text(
+          "Profile",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: Center(
         child: Padding(
@@ -90,7 +95,7 @@ class _ProfilePageState extends State<ProfilePage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(
-                radius: 60,
+                radius: 80,
                 backgroundImage: _profileImage != null
                     ? FileImage(_profileImage!)
                     : NetworkImage('https://via.placeholder.com/150')
@@ -105,19 +110,23 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Column(
                 children: [
-                  ElevatedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.gallery),
-                    icon: Icon(Icons.photo),
-                    label: Text("From Gallery"),
-                  ),
-                  SizedBox(width: 10),
-                  ElevatedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.camera),
-                    icon: Icon(Icons.camera_alt),
-                    label: Text("From Camera"),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () => _pickImage(ImageSource.gallery),
+                        icon: Icon(Icons.photo),
+                        label: Text("From Gallery"),
+                      ),
+                      SizedBox(width: 10),
+                      ElevatedButton.icon(
+                        onPressed: () => _pickImage(ImageSource.camera),
+                        icon: Icon(Icons.camera_alt),
+                        label: Text("From Camera"),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -134,7 +143,8 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _logout,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 227, 142, 73)),
                 child: Text(
                   "Logout",
                   style: TextStyle(color: Colors.white),
@@ -154,10 +164,13 @@ class SuggestionPage extends StatefulWidget {
 }
 
 class _SuggestionPageState extends State<SuggestionPage> {
+  File? _profileImage;
+
   @override
   void initState() {
     super.initState();
-    _validateSession(); // Tambahkan validasi sesi
+    _validateSession();
+    _loadProfileImage(); // Memuat foto profil
   }
 
   // Fungsi untuk memvalidasi sesi
@@ -175,29 +188,69 @@ class _SuggestionPageState extends State<SuggestionPage> {
     }
   }
 
+  // Fungsi untuk memuat foto profil dari SharedPreferences
+  Future<void> _loadProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? imagePath = prefs.getString('profileImage');
+    if (imagePath != null && File(imagePath).existsSync()) {
+      setState(() {
+        _profileImage = File(imagePath);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Saran dan Pesan"),
+        backgroundColor: const Color.fromARGB(255, 10, 57, 129),
+        title: Text("Saran dan Pesan", style: TextStyle(color: Colors.white)),
       ),
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                "Halaman ini untuk memberikan saran dan pesan.",
-                style: TextStyle(fontSize: 18),
-                textAlign: TextAlign.center,
+              CircleAvatar(
+                radius: 60,
+                backgroundImage: _profileImage != null
+                    ? FileImage(_profileImage!)
+                    : NetworkImage('https://via.placeholder.com/150')
+                        as ImageProvider,
               ),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text("Kembali"),
+              Text(
+                "Kesan Mata Kuliah",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: const Color.fromARGB(255, 31, 80, 154),
+                ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 240, 240, 240),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      blurRadius: 5,
+                      offset: Offset(0, 3), // Shadow position
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  "Selama mengikuti mata kuliah Pemrograman Aplikasi Mobile, "
+                  "saya merasa materi yang dipelajari sangat menarik dan bermanfaat. "
+                  "Tugas-tugas yang diberikan menantang untuk mencari berbagai cara dan metode "
+                  "implementasi fitur-fitur yang ada pada tugas, sehingga meningkatkan pemahaman saya dalam pengembangan aplikasi.",
+                  style: TextStyle(fontSize: 16, height: 1.5),
+                  textAlign: TextAlign.justify,
+                ),
               ),
             ],
           ),

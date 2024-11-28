@@ -10,9 +10,14 @@ class GameProvider with ChangeNotifier {
   List<Game> get games => _games;
   bool get isLoading => _isLoading;
 
+  void setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners(); // Notify listeners to update UI
+  }
+
   // Fungsi untuk mengambil deals
   Future<void> fetchDeals() async {
-    _isLoading = true;
+    setLoading(true);
     notifyListeners();
 
     const url = 'https://www.cheapshark.com/api/1.0/deals?';
@@ -25,15 +30,14 @@ class GameProvider with ChangeNotifier {
     } catch (error) {
       print("Error fetching deals: $error");
     } finally {
-      _isLoading = false;
+      setLoading(false);
       notifyListeners();
     }
   }
 
   // Fungsi untuk pencarian berdasarkan nama game
   Future<List<Game>> searchGames(String query) async {
-    _isLoading = true;
-    notifyListeners();
+    setLoading(true);
 
     final url = 'https://www.cheapshark.com/api/1.0/games?title=$query';
     try {
@@ -48,8 +52,7 @@ class GameProvider with ChangeNotifier {
       print("Error searching games: $error");
       return [];
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      setLoading(false);
     }
   }
 
@@ -97,10 +100,10 @@ class GameProvider with ChangeNotifier {
   }
 
   Future<List<Game>> searchGamesWithDetails(String query) async {
-    final searchResults =
-        await searchGames(query); // Pencarian awal berdasarkan nama
+    setLoading(true);
+    final searchResults = await searchGames(query);
 
-    for (var game in searchResults) {
+    await Future.wait(searchResults.map((game) async {
       try {
         final gameDetails = await getGameDetailsById(game.gameID);
         game.detailedPrice =
@@ -108,8 +111,9 @@ class GameProvider with ChangeNotifier {
       } catch (e) {
         print("Error fetching details for gameID ${game.gameID}: $e");
       }
-    }
+    }));
 
+    setLoading(false);
     return searchResults;
   }
 }

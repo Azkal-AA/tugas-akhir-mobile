@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'package:tugas_akhir/pages/detailPage.dart';
 import 'package:tugas_akhir/pages/loginPage.dart';
 import 'package:tugas_akhir/providers/currencyProvider.dart';
 import '../database/wishlist_database.dart';
 import '../models/game.dart';
+import 'package:intl/intl.dart';
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -24,6 +26,177 @@ class _WishlistPageState extends State<WishlistPage> {
     super.initState();
     _validateSession();
     _loadWishlist();
+  }
+
+  Future<void> scheduleReminder(
+      String gameTitle, tz.TZDateTime reminderTime) async {
+    try {
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        0, // ID notifikasi unik
+        'Game Reminder',
+        'Don\'t forget to check the deal for $gameTitle!',
+        reminderTime,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+              'reminder_channel', 'Reminder Notif',
+              importance: Importance.high,
+              priority: Priority.high,
+              showWhen: false,
+              icon: '@mipmap/ic_launcher'),
+        ),
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Notification set for $gameTitle')),
+      );
+      print('Current time: ${DateTime.now()}');
+      print('Reminder time: $reminderTime');
+    } catch (e) {
+      print('Failed to send notification: $e');
+    }
+  }
+
+  void _showReminderDialog(BuildContext context, String gameTitle) {
+    // Daftar zona waktu yang diizinkan
+    final Map<String, String> timeZones = {
+      "WIB": "Asia/Jakarta", // WIB - Jakarta
+      "WITA": "Asia/Makassar", // WITA - Makassar
+      "WIT": "Asia/Jayapura", // WIT - Jayapura
+      "London": "Europe/London", // London
+      "New York": "America/New_York", // New York
+      "Sydney": "Australia/Sydney", // Sydney
+      "Tokyo": "Asia/Tokyo", // Tokyo
+    };
+
+    String selectedTimeZone =
+        timeZones["WIB"]!; // Default zona waktu digunakan (WIB)
+    String targetTimeZone =
+        timeZones["WIB"]!; // Default zona waktu konversi (WIB)
+    TimeOfDay? selectedTime; // Waktu yang dipilih oleh pengguna
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: Text("Set Reminder for $gameTitle"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Menampilkan zona waktu yang digunakan (default: WIB)
+                  Text(
+                    "Using Time Zone: ${timeZones.entries.firstWhere((entry) => entry.value == selectedTimeZone).key}",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 20),
+
+                  // Dropdown untuk memilih zona waktu tujuan konversi
+                  DropdownButton<String>(
+                    value: timeZones.entries
+                        .firstWhere((entry) => entry.value == targetTimeZone)
+                        .key, // Mendapatkan nama zona waktu konversi
+                    items: timeZones.keys.map((String timeZone) {
+                      return DropdownMenuItem<String>(
+                        value: timeZone,
+                        child: Text(timeZone),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          targetTimeZone = timeZones[newValue]!;
+                        });
+                      }
+                    },
+                  ),
+                  SizedBox(height: 20),
+
+                  // Tombol untuk memilih waktu
+                  TextButton(
+                    onPressed: () async {
+                      final TimeOfDay? pickedTime = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                      );
+                      if (pickedTime != null) {
+                        setState(() {
+                          selectedTime = pickedTime;
+                        });
+                      }
+                    },
+                    child: Text(selectedTime == null
+                        ? "Pick Time"
+                        : "Selected Time: ${selectedTime!.format(context)}"),
+                  ),
+                  SizedBox(height: 10),
+
+                  // Menampilkan waktu hasil konversi berdasarkan zona waktu tujuan
+                  if (selectedTime != null)
+                    Text(
+                      "Converted Time: ${DateFormat('HH:mm:ss').format(
+                        // Mengonversi waktu dari WIB ke zona waktu yang dipilih
+                        tz.TZDateTime.from(
+                          tz.TZDateTime(
+                            tz.getLocation(selectedTimeZone), // Zona WIB
+                            DateTime.now().year,
+                            DateTime.now().month,
+                            DateTime.now().day,
+                            selectedTime!.hour,
+                            selectedTime!.minute,
+                          ),
+                          tz.getLocation(
+                              targetTimeZone), // Zona target (misalnya WITA)
+                        ),
+                      )}",
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (selectedTime != null) {
+                      // Konversi waktu dari WIB ke zona waktu target yang dipilih
+                      final tz.TZDateTime reminderTime = tz.TZDateTime.from(
+                        tz.TZDateTime(
+                          tz.getLocation(selectedTimeZone),
+                          DateTime.now().year,
+                          DateTime.now().month,
+                          DateTime.now().day,
+                          selectedTime!.hour,
+                          selectedTime!.minute,
+                        ),
+                        tz.getLocation(targetTimeZone),
+                      );
+
+                      // Panggil fungsi scheduleReminder
+                      scheduleReminder(gameTitle, reminderTime);
+
+                      Navigator.of(context).pop();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Please select a time.")),
+                      );
+                    }
+                  },
+                  child: Text("Set Reminder"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   Future<void> _validateSession() async {
@@ -129,11 +302,18 @@ class _WishlistPageState extends State<WishlistPage> {
     final rate = currencyProvider.getRate(currencyProvider.currentCurrency);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Your Wishlist"),
+        automaticallyImplyLeading: false,
+        backgroundColor: const Color.fromARGB(255, 10, 57, 129),
+        title: Text(
+          "Your Wishlist",
+          style: TextStyle(color: Colors.white),
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_active_outlined),
+            color: Colors.white,
             onPressed: () {
               if (wishlistGames.isNotEmpty) {
                 checkPriceChanges(wishlistGames);
@@ -272,6 +452,12 @@ class _WishlistPageState extends State<WishlistPage> {
                                         ),
                                     ],
                                   ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.alarm),
+                                  onPressed: () {
+                                    _showReminderDialog(context, game['title']);
+                                  },
                                 ),
                                 IconButton(
                                   icon: Icon(Icons.delete, color: Colors.red),
