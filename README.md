@@ -1,6 +1,8 @@
 # tugas_akhir
-
-124220085_Azkal Azkiya Akbar_Si-C
+Anggota Kelompok  
+124220085 Azkal Azkiya Akbar  
+124220126 Wahyu Widiasmoro  
+Kelas SI-C
 
 ## Getting Started
 
