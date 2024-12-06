@@ -9,17 +9,16 @@ class Game {
   double? detailedPrice;
   DateTime? reminderTime;
 
-  Game({
-    required this.id,
-    required this.title,
-    required this.price,
-    required this.store,
-    required this.originalPrice,
-    required this.discount,
-    required this.thumb,
-    // this.detailedPrice, // Opsional
-    this.reminderTime
-  });
+  Game(
+      {required this.id,
+      required this.title,
+      required this.price,
+      required this.store,
+      required this.originalPrice,
+      required this.discount,
+      required this.thumb,
+      // this.detailedPrice, // Opsional
+      this.reminderTime});
 
   factory Game.fromJson(Map<String, dynamic> json) {
     return Game(
@@ -34,12 +33,11 @@ class Game {
     );
   }
 
-  // Factory method untuk parsing API search
   factory Game.fromJsonSearch(Map<String, dynamic> json) {
     return Game(
       id: json['gameID'] ?? 'N/A',
       title: json['external'] ?? 'Unknown Title',
-      price: 0, // Harga tidak ada di hasil pencarian API `games`
+      price: 0,
       store: 'Unknown Store',
       originalPrice: 0,
       discount: 0,

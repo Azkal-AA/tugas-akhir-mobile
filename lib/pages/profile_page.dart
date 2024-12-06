@@ -11,21 +11,19 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   File? _profileImage;
-  String _userName = "User Name"; // Default jika nama belum disimpan
+  String _userName = "User Name";
 
   @override
   void initState() {
     super.initState();
-    _validateSession(); // Tambahkan validasi sesi
+    _validateSession();
     _loadUserData();
   }
 
-  // Fungsi untuk memvalidasi sesi
   Future<void> _validateSession() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null) {
-      // Jika token tidak ada, arahkan ke halaman login
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
           context,
@@ -35,7 +33,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  // Fungsi untuk memuat data pengguna dari SharedPreferences
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -47,13 +44,11 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
-  // Fungsi untuk menyimpan path gambar ke SharedPreferences
   Future<void> _saveProfileImage(String imagePath) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('profileImage', imagePath);
   }
 
-  // Fungsi untuk mengambil foto dari kamera atau galeri
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await ImagePicker().pickImage(source: source);
     if (pickedFile != null) {
@@ -64,7 +59,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  // Fungsi untuk logout
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
@@ -170,15 +164,13 @@ class _SuggestionPageState extends State<SuggestionPage> {
   void initState() {
     super.initState();
     _validateSession();
-    _loadProfileImage(); // Memuat foto profil
+    _loadProfileImage();
   }
 
-  // Fungsi untuk memvalidasi sesi
   Future<void> _validateSession() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null) {
-      // Jika token tidak ada, arahkan ke halaman login
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
           context,
@@ -188,7 +180,6 @@ class _SuggestionPageState extends State<SuggestionPage> {
     }
   }
 
-  // Fungsi untuk memuat foto profil dari SharedPreferences
   Future<void> _loadProfileImage() async {
     final prefs = await SharedPreferences.getInstance();
     String? imagePath = prefs.getString('profileImage');

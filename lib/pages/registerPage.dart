@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:crypto/crypto.dart'; // Import the crypto package
-import 'dart:convert'; // For utf8 encoding
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tugas_akhir/pages/loginPage.dart';
 
 String hashPassword(String password) {
-  final bytes = utf8.encode(password); // Convert password to bytes
-  final digest = sha256.convert(bytes); // Hash with SHA-256
-  return digest.toString(); // Return the hashed password as a string
+  final bytes = utf8.encode(password);
+  final digest = sha256.convert(bytes);
+  return digest.toString();
 }
 
 class RegisterPage extends StatefulWidget {
@@ -35,11 +35,9 @@ class _RegisterPageState extends State<RegisterPage> {
     await prefs.setString('username', username);
     await prefs.setString('password', hashedPassword);
 
-    // Show success message
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Registrasi berhasil')));
 
-    // Navigate to LoginPage
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
@@ -57,7 +55,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 227, 142, 73),
-        automaticallyImplyLeading: false, // Hapus tombol kembali
+        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Padding(
@@ -66,9 +64,8 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Tambahkan logo di atas kolom pengisian (opsional)
                 Image.asset(
-                  'assets/logo.png', // Pastikan file logo ada di folder assets
+                  'assets/logo.png',
                   height: 200,
                   width: 200,
                 ),
@@ -102,7 +99,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
                 SizedBox(height: 20),
-                // Teks untuk mengarahkan ke halaman login
                 TextButton(
                   onPressed: () {
                     Navigator.pushReplacement(

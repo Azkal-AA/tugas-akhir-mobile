@@ -6,10 +6,8 @@ class CurrencyProvider with ChangeNotifier {
     "USD": 1.0,
     "EUR": 0.85,
     "IDR": 14000.0,
-    "JPY":
-        140.0, // Misalnya, 1 USD = 140 JPY (Anda dapat menyesuaikan nilai tukar sesuai kebutuhan)
-    "GBP":
-        0.75, // Misalnya, 1 USD = 0.75 GBP (sesuaikan dengan nilai tukar yang tepat)
+    "JPY": 140.0,
+    "GBP": 0.75,
   };
 
   List<String> get availableCurrencies => _conversionRates.keys.toList();

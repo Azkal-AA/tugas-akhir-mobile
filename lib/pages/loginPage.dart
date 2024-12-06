@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:crypto/crypto.dart'; // Import the crypto package
-import 'dart:convert'; // For utf8 encoding
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tugas_akhir/pages/home_page.dart'; // Pastikan import HomePage
+import 'package:tugas_akhir/pages/home_page.dart';
 
 // Fungsi untuk mengenkripsi password menggunakan SHA-256 (hashing)
 String hashPassword(String password) {
-  final bytes = utf8.encode(password); // Convert password to bytes
-  final digest = sha256.convert(bytes); // Hash with SHA-256
-  return digest.toString(); // Return the hashed password as a string
+  final bytes = utf8.encode(password);
+  final digest = sha256.convert(bytes);
+  return digest.toString();
 }
 
 class LoginPage extends StatefulWidget {
@@ -58,11 +58,10 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Login berhasil')));
 
-        // Arahkan ke halaman Home dan kirim username
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => HomePage(), // Kirim username ke HomePage
+            builder: (context) => HomePage(),
           ),
         );
       } else {
@@ -75,7 +74,6 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // Fungsi untuk logout
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
@@ -106,14 +104,12 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Tambahkan logo di atas kolom pengisian
                 Image.asset(
-                  'assets/logo.png', // Pastikan file logo ada di folder assets
+                  'assets/logo.png',
                   height: 200,
                   width: 200,
                 ),
                 SizedBox(height: 20),
-
                 TextField(
                   controller: _usernameController,
                   decoration: InputDecoration(

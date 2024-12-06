@@ -12,10 +12,9 @@ class GameProvider with ChangeNotifier {
 
   void setLoading(bool value) {
     _isLoading = value;
-    notifyListeners(); // Notify listeners to update UI
+    notifyListeners();
   }
 
-  // Fungsi untuk mengambil deals
   Future<void> fetchDeals() async {
     setLoading(true);
     notifyListeners();
@@ -35,7 +34,23 @@ class GameProvider with ChangeNotifier {
     }
   }
 
-  // Fungsi untuk pencarian berdasarkan nama game
+  Future<List<Game>> fetchDealsByStore(String storeID) async {
+    final url =
+        'https://www.cheapshark.com/api/1.0/deals?storeID=$storeID&upperPrice=15';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as List;
+        return data.map((item) => Game.fromJson(item)).toList();
+      } else {
+        throw Exception("Failed to fetch deals for store ID $storeID");
+      }
+    } catch (error) {
+      print("Error fetching deals for store ID $storeID: $error");
+      return [];
+    }
+  }
+
   Future<List<Game>> searchGames(String query) async {
     setLoading(true);
 
@@ -56,7 +71,6 @@ class GameProvider with ChangeNotifier {
     }
   }
 
-  // Fungsi untuk mendapatkan detail game berdasarkan ID
   Future<Map<String, dynamic>> getGameDetailsById(String gameId) async {
     final url =
         Uri.parse('https://www.cheapshark.com/api/1.0/games?id=$gameId');
@@ -64,7 +78,7 @@ class GameProvider with ChangeNotifier {
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body); // Mengembalikan detail game
+        return jsonDecode(response.body);
       } else {
         throw Exception('Failed to load game details');
       }
@@ -74,20 +88,14 @@ class GameProvider with ChangeNotifier {
     }
   }
 
-  // Fungsi gabungan: pencarian + detail berdasarkan nama game
   Future<Map<String, dynamic>?> fetchGameDetails(String gameName) async {
     try {
-      // Pencarian awal berdasarkan nama
       final searchResults = await searchGames(gameName);
+      print(searchResults);
 
       if (searchResults.isNotEmpty) {
-        // Ambil gameID dari hasil pencarian pertama
-        final gameId = searchResults[0].gameID; // Properti dari model Game
-
-        // Cari detail berdasarkan gameID
+        final gameId = searchResults[0].gameID;
         final gameDetails = await getGameDetailsById(gameId);
-
-        // Return hasil detail
         return gameDetails;
       } else {
         print("No games found for $gameName");

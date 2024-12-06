@@ -9,33 +9,28 @@ import 'package:tugas_akhir/providers/currencyProvider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // Import the plugin
 import 'package:timezone/data/latest.dart' as tz;
 
-// Create a global instance of FlutterLocalNotificationsPlugin
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 void main() {
-  // Inisialisasi notifikasi sebelum menjalankan aplikasi
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
-  initializeNotifications(); // Memanggil fungsi inisialisasi
+  initializeNotifications();
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => GameProvider()),
-        ChangeNotifierProvider(
-            create: (_) => CurrencyProvider()), // Inisialisasi provider
+        ChangeNotifierProvider(create: (_) => CurrencyProvider()),
       ],
       child: MyApp(),
     ),
   );
 }
 
-// Fungsi untuk menginisialisasi notifikasi
 void initializeNotifications() {
   const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings(
-          '@mipmap/gd'); // Ganti dengan nama ikon Anda
+      AndroidInitializationSettings('@mipmap/gd');
 
   const InitializationSettings initializationSettings =
       InitializationSettings(android: initializationSettingsAndroid);
@@ -71,9 +66,9 @@ class AuthGate extends StatelessWidget {
         } else {
           final isLoggedIn = snapshot.data as bool;
           if (isLoggedIn) {
-            return HomePage(); // Arahkan ke HomePage jika login
+            return HomePage();
           } else {
-            return LoginPage(); // Arahkan ke LoginPage jika tidak login
+            return LoginPage();
           }
         }
       },
@@ -83,6 +78,6 @@ class AuthGate extends StatelessWidget {
   Future<bool> _checkToken() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
-    return token != null; // Return true jika token ada
+    return token != null;
   }
 }

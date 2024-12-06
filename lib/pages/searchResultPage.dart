@@ -16,15 +16,13 @@ class _SearchResultPageState extends State<SearchResultPage> {
   @override
   void initState() {
     super.initState();
-    _validateSession(); // Verifikasi sesi pengguna
+    _validateSession();
   }
 
-  // Fungsi untuk memvalidasi sesi pengguna
   Future<void> _validateSession() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null) {
-      // Jika token tidak ada, arahkan ke halaman login
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
           context,
@@ -84,7 +82,6 @@ class _SearchResultPageState extends State<SearchResultPage> {
                       style: TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                     onTap: () {
-                      // Navigasi ke halaman detail
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -113,15 +110,13 @@ class _GameDetailPageState extends State<GameDetailPage> {
   @override
   void initState() {
     super.initState();
-    _validateSession(); // Verifikasi sesi pengguna
+    _validateSession();
   }
 
-  // Fungsi untuk memvalidasi sesi pengguna
   Future<void> _validateSession() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null) {
-      // Jika token tidak ada, arahkan ke halaman login
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
           context,

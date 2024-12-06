@@ -5,7 +5,6 @@ import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
 import 'package:tugas_akhir/models/game.dart';
 import 'package:tugas_akhir/pages/detailPage.dart';
 import 'package:tugas_akhir/pages/dropdown.dart';
-import 'package:tugas_akhir/pages/notificationPage.dart';
 import 'package:tugas_akhir/pages/searchResultPage.dart';
 import 'package:tugas_akhir/pages/wishlistPage.dart';
 import 'package:tugas_akhir/providers/game_provider.dart';
@@ -20,33 +19,30 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  String _username = "Guest"; // Default username
-  File? _profileImage; // Variable to store profile image
+  String _username = "Guest";
+  File? _profileImage;
 
   @override
   void initState() {
     super.initState();
-    _validateSession(); // Tambahkan validasi sesi
-    _loadUserData(); // Memuat data pengguna
+    _validateSession();
+    _loadUserData();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<GameProvider>(context, listen: false).fetchDeals();
     });
   }
 
-// Fungsi untuk memvalidasi sesi
   Future<void> _validateSession() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
     if (token == null) {
-      // Jika token tidak ada, arahkan ke halaman login
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacementNamed(context, '/login');
       });
     }
   }
 
-  // Function to load user data from SharedPreferences
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -64,82 +60,121 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final gameProvider = Provider.of<GameProvider>(context);
-    final currencyProvider = Provider.of<CurrencyProvider>(context);
-
-    final List<Widget> pages = [
-      Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: const Color.fromARGB(255, 10, 57, 129),
-            title: TextField(
-              decoration: InputDecoration(
-                hintText: "Search games...",
-                border: InputBorder.none,
-                hintStyle: TextStyle(color: Colors.white),
+  Widget _buildDealsSwiper(String storeID, String storeName) {
+    return FutureBuilder<List<Game>>(
+      future: Provider.of<GameProvider>(context, listen: false)
+          .fetchDealsByStore(storeID),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError ||
+            snapshot.data == null ||
+            snapshot.data!.isEmpty) {
+          return Center(child: Text("No deals found for $storeName"));
+        } else {
+          final games = snapshot.data!;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  '$storeName Deals',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
               ),
-              style: TextStyle(color: Colors.white),
-              onSubmitted: (value) async {
-                if (value.isNotEmpty) {
-                  final gameProvider =
-                      Provider.of<GameProvider>(context, listen: false);
-                  List<Game> searchResults =
-                      await gameProvider.searchGamesWithDetails(value);
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          SearchResultPage(searchResults: searchResults),
-                    ),
-                  );
-                }
-              },
-            ),
-            actions: [
-              GestureDetector(
-                onTap: () async {
-                  // Navigasikan ke halaman ProfilePage dan tunggu hasilnya
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ProfilePage()),
-                  );
-                  // Setelah kembali, muat ulang data pengguna (foto profil)
-                  _loadUserData();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    children: [
-                      // Tampilkan nama pengguna
-                      Text(
-                        _username,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      SizedBox(width: 8.0),
-                      // Tampilkan gambar profil atau placeholder
-                      CircleAvatar(
-                        backgroundImage: _profileImage != null
-                            ? FileImage(_profileImage!)
-                            : NetworkImage('https://via.placeholder.com/150')
-                                as ImageProvider,
-                      ),
-                    ],
-                  ),
+              Container(
+                height: MediaQuery.of(context).size.height * 0.45,
+                child: Swiper(
+                  itemCount: games.length,
+                  itemBuilder: (context, index) {
+                    final game = games[index];
+                    return GameCarouselItem(game: game);
+                  },
+                  autoplay: true,
+                  loop: true,
+                  itemWidth: double.infinity,
+                  layout: SwiperLayout.DEFAULT,
+                  control: SwiperControl(),
                 ),
               ),
             ],
+          );
+        }
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: const Color.fromARGB(255, 10, 57, 129),
+          title: TextField(
+            decoration: InputDecoration(
+              hintText: "Search games...",
+              border: InputBorder.none,
+              hintStyle: TextStyle(color: Colors.white),
+            ),
+            style: TextStyle(color: Colors.white),
+            onSubmitted: (value) async {
+              if (value.isNotEmpty) {
+                final gameProvider =
+                    Provider.of<GameProvider>(context, listen: false);
+                List<Game> searchResults =
+                    await gameProvider.searchGamesWithDetails(value);
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        SearchResultPage(searchResults: searchResults),
+                  ),
+                );
+              }
+            },
           ),
-          body: Consumer<GameProvider>(
-            builder: (context, gameProvider, child) {
-              return gameProvider.isLoading
-                  ? Center(child: CircularProgressIndicator())
-                  : gameProvider.games.isEmpty
-                      ? Center(child: Text("No games found"))
-                      : Column(
+          actions: [
+            GestureDetector(
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                );
+                _loadUserData();
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  children: [
+                    Text(
+                      _username,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    SizedBox(width: 8.0),
+                    CircleAvatar(
+                      backgroundImage: _profileImage != null
+                          ? FileImage(_profileImage!)
+                          : NetworkImage('https://via.placeholder.com/150')
+                              as ImageProvider,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        body: Consumer<GameProvider>(
+          builder: (context, gameProvider, child) {
+            return gameProvider.isLoading
+                ? Center(child: CircularProgressIndicator())
+                : gameProvider.games.isEmpty
+                    ? Center(child: Text("No games found"))
+                    : SingleChildScrollView(
+                        child: Column(
                           children: [
                             Padding(
                               padding: const EdgeInsets.all(16.0),
@@ -156,7 +191,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             Container(
-                              height: 450,
+                              height: MediaQuery.of(context).size.height * 0.45,
                               child: Swiper(
                                 itemCount: gameProvider.games.length,
                                 itemBuilder: (context, index) {
@@ -170,12 +205,18 @@ class _HomePageState extends State<HomePage> {
                                 control: SwiperControl(),
                               ),
                             ),
+                            _buildDealsSwiper('1', 'Steam'),
+                            _buildDealsSwiper('7', 'GOG'),
+                            _buildDealsSwiper('8', 'Origin'),
+                            _buildDealsSwiper('13', 'Uplay'),
+                            _buildDealsSwiper('25', 'Epic Games Store'),
                           ],
-                        );
-            },
-          )),
+                        ),
+                      );
+          },
+        ),
+      ),
       WishlistPage(),
-      // NotificationPage(),
     ];
 
     return Scaffold(
@@ -190,10 +231,6 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.favorite),
             label: 'Wishlist',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.notifications),
-          //   label: 'Notification',
-          // ),
         ],
         currentIndex: _selectedIndex,
         unselectedItemColor: Colors.white,
@@ -275,23 +312,13 @@ class GameCarouselItem extends StatelessWidget {
                         Text(
                           "${currencyProvider.currentCurrency} ${(game.originalPrice * rate).toStringAsFixed(2)}",
                           style: TextStyle(
-                            fontSize: 14.0,
-                            color: Colors.grey,
+                            fontSize: 16.0,
                             decoration: TextDecoration.lineThrough,
+                            color: Colors.grey,
                           ),
                         ),
                     ],
                   ),
-                  SizedBox(height: 8.0),
-                  if (game.originalPrice > 0)
-                    Text(
-                      "Discount: ${((game.originalPrice - game.price) / game.originalPrice * 100).toStringAsFixed(1)}%",
-                      style: TextStyle(
-                        fontSize: 14.0,
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
                 ],
               ),
             ),

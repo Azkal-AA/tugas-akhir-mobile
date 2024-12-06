@@ -32,7 +32,7 @@ class _WishlistPageState extends State<WishlistPage> {
       String gameTitle, tz.TZDateTime reminderTime) async {
     try {
       await flutterLocalNotificationsPlugin.zonedSchedule(
-        0, // ID notifikasi unik
+        0,
         'Game Reminder',
         'Don\'t forget to check the deal for $gameTitle!',
         reminderTime,
@@ -59,22 +59,19 @@ class _WishlistPageState extends State<WishlistPage> {
   }
 
   void _showReminderDialog(BuildContext context, String gameTitle) {
-    // Daftar zona waktu yang diizinkan
     final Map<String, String> timeZones = {
-      "WIB": "Asia/Jakarta", // WIB - Jakarta
-      "WITA": "Asia/Makassar", // WITA - Makassar
-      "WIT": "Asia/Jayapura", // WIT - Jayapura
-      "London": "Europe/London", // London
-      "New York": "America/New_York", // New York
-      "Sydney": "Australia/Sydney", // Sydney
-      "Tokyo": "Asia/Tokyo", // Tokyo
+      "WIB": "Asia/Jakarta",
+      "WITA": "Asia/Makassar",
+      "WIT": "Asia/Jayapura",
+      "London": "Europe/London",
+      "New York": "America/New_York",
+      "Sydney": "Australia/Sydney",
+      "Tokyo": "Asia/Tokyo",
     };
 
-    String selectedTimeZone =
-        timeZones["WIB"]!; // Default zona waktu digunakan (WIB)
-    String targetTimeZone =
-        timeZones["WIB"]!; // Default zona waktu konversi (WIB)
-    TimeOfDay? selectedTime; // Waktu yang dipilih oleh pengguna
+    String selectedTimeZone = timeZones["WIB"]!;
+    String targetTimeZone = timeZones["WIB"]!;
+    TimeOfDay? selectedTime;
 
     showDialog(
       context: context,
@@ -86,18 +83,15 @@ class _WishlistPageState extends State<WishlistPage> {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Menampilkan zona waktu yang digunakan (default: WIB)
                   Text(
                     "Using Time Zone: ${timeZones.entries.firstWhere((entry) => entry.value == selectedTimeZone).key}",
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 20),
-
-                  // Dropdown untuk memilih zona waktu tujuan konversi
                   DropdownButton<String>(
                     value: timeZones.entries
                         .firstWhere((entry) => entry.value == targetTimeZone)
-                        .key, // Mendapatkan nama zona waktu konversi
+                        .key,
                     items: timeZones.keys.map((String timeZone) {
                       return DropdownMenuItem<String>(
                         value: timeZone,
@@ -113,8 +107,6 @@ class _WishlistPageState extends State<WishlistPage> {
                     },
                   ),
                   SizedBox(height: 20),
-
-                  // Tombol untuk memilih waktu
                   TextButton(
                     onPressed: () async {
                       final TimeOfDay? pickedTime = await showTimePicker(
@@ -132,23 +124,19 @@ class _WishlistPageState extends State<WishlistPage> {
                         : "Selected Time: ${selectedTime!.format(context)}"),
                   ),
                   SizedBox(height: 10),
-
-                  // Menampilkan waktu hasil konversi berdasarkan zona waktu tujuan
                   if (selectedTime != null)
                     Text(
                       "Converted Time: ${DateFormat('HH:mm:ss').format(
-                        // Mengonversi waktu dari WIB ke zona waktu yang dipilih
                         tz.TZDateTime.from(
                           tz.TZDateTime(
-                            tz.getLocation(selectedTimeZone), // Zona WIB
+                            tz.getLocation(selectedTimeZone),
                             DateTime.now().year,
                             DateTime.now().month,
                             DateTime.now().day,
                             selectedTime!.hour,
                             selectedTime!.minute,
                           ),
-                          tz.getLocation(
-                              targetTimeZone), // Zona target (misalnya WITA)
+                          tz.getLocation(targetTimeZone),
                         ),
                       )}",
                       style:
@@ -166,7 +154,6 @@ class _WishlistPageState extends State<WishlistPage> {
                 TextButton(
                   onPressed: () {
                     if (selectedTime != null) {
-                      // Konversi waktu dari WIB ke zona waktu target yang dipilih
                       final tz.TZDateTime reminderTime = tz.TZDateTime.from(
                         tz.TZDateTime(
                           tz.getLocation(selectedTimeZone),
@@ -178,8 +165,6 @@ class _WishlistPageState extends State<WishlistPage> {
                         ),
                         tz.getLocation(targetTimeZone),
                       );
-
-                      // Panggil fungsi scheduleReminder
                       scheduleReminder(gameTitle, reminderTime);
 
                       Navigator.of(context).pop();
@@ -229,8 +214,6 @@ class _WishlistPageState extends State<WishlistPage> {
     for (var gameData in wishlistGames) {
       final originalPrice = gameData['originalPrice'] ?? 0.0;
       final currentPrice = gameData['price'] ?? 0.0;
-
-      // Jika harga telah berubah
       if (originalPrice != currentPrice) {
         final game = Game(
           id: gameData['id'].toString(),
@@ -241,7 +224,6 @@ class _WishlistPageState extends State<WishlistPage> {
           thumb: gameData['thumb'],
           store: gameData['store'] ?? 'Unknown',
         );
-        // Kirimkan notifikasi
         await sendPriceChangeNotification(game);
       }
     }
@@ -270,7 +252,7 @@ class _WishlistPageState extends State<WishlistPage> {
           NotificationDetails(android: androidPlatformChannelSpecifics);
 
       await flutterLocalNotificationsPlugin.show(
-        notificationId, // Default to a unique ID if game.id is null
+        notificationId,
         'Price Change Alert!',
         'The price of ${game.title} has changed to \$${game.price}',
         platformChannelSpecifics,

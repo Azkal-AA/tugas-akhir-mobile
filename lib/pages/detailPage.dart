@@ -21,16 +21,14 @@ class _DetailPageState extends State<DetailPage> {
   @override
   void initState() {
     super.initState();
-    _validateSession(); // Validasi sesi pengguna
+    _validateSession();
     _checkWishlist();
   }
 
-  // Fungsi untuk memvalidasi sesi
   Future<void> _validateSession() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null) {
-      // Jika token tidak ada, arahkan ke halaman login
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
           context,
@@ -69,7 +67,7 @@ class _DetailPageState extends State<DetailPage> {
           SnackBar(content: Text('${widget.game.title} added to wishlist')),
         );
       }
-      _checkWishlist(); // Refresh state
+      _checkWishlist();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Item ini telah masuk dalam wishlist')),
